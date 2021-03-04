@@ -37,4 +37,5 @@ dependencies {
 
     //anko
     implementation "org.jetbrains.anko:anko:0.10.1"
+    implementation "com.roughike:bottom-bar:2.3.1"
 }

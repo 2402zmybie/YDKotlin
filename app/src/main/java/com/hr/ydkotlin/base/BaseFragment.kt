@@ -15,7 +15,7 @@ abstract class BaseFragment:Fragment() {
         init()
     }
 
-    fun init() {
+    open fun init() {
 
     }
 
@@ -34,10 +34,10 @@ abstract class BaseFragment:Fragment() {
         initData()
     }
 
-    fun initData() {
+    open fun initData() {
     }
 
-    fun initListener() {
+    open fun initListener() {
     }
 
     fun myToast(msg:String) {

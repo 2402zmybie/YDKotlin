@@ -3,11 +3,9 @@ package com.hr.ydkotlin.ui.activity
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.hr.ydkotlin.R
+import com.hr.ydkotlin.base.BaseActivity
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
+    override fun getLayoutId(): Int = R.layout.activity_main
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-    }
 }

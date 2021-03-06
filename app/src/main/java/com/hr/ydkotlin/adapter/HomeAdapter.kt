@@ -19,6 +19,14 @@ class HomeAdapter: RecyclerView.Adapter<HomeAdapter.HomeHolder>() {
         notifyDataSetChanged()
     }
 
+    /**
+     * 加载更多
+     */
+    fun loadMore(list:List<Subject>) {
+        this.list.addAll(list);
+        notifyDataSetChanged()
+    }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HomeHolder {
         return HomeHolder(HomeItemView(parent.context))

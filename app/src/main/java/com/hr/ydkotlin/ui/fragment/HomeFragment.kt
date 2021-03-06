@@ -1,9 +1,6 @@
 package com.hr.ydkotlin.ui.fragment
 
-import android.graphics.Color
-import android.view.Gravity
 import android.view.View
-import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.hr.ydkotlin.R
@@ -17,6 +14,8 @@ import java.io.IOException
 
 class HomeFragment :BaseFragment() {
     val adapter by lazy { HomeAdapter() }
+    var offset = 0;
+    var size = 10;
 
     override fun initView(): View? {
         return View.inflate(context, R.layout.fragment_home,null);
@@ -27,21 +26,22 @@ class HomeFragment :BaseFragment() {
         recyclerView.layoutManager = LinearLayoutManager(context)
         //适配
         recyclerView.adapter = adapter;
-        //初始化刷新控价
-        refreshLayout.setColorSchemeColors(Color.RED,Color.YELLOW,Color.GREEN)
-        //刷新监听
+        //刷新
         refreshLayout.setOnRefreshListener {
-            loadData()
+            offset = 0;
+            loadData(true)
+        }
+        refreshLayout.setOnLoadMoreListener {
+            offset = (offset + 1)*size;
+            loadData(false)
         }
     }
 
     override fun initData() {
-        loadData()
+        loadData(true)
     }
 
-    private fun loadData() {
-        var offset = 0;
-        var size = 10;
+    private fun loadData(refresh: Boolean) {
         val path = "http://www.liulongbin.top:3005/api/v2/movie/in_theaters?start=$offset&count=$size";
         //发送网络请求
         var client = OkHttpClient()
@@ -54,7 +54,7 @@ class HomeFragment :BaseFragment() {
                 println("获取数据出错" + e.message)
                 ThreadUtil.runOnMainThread(object :Runnable{
                     override fun run() {
-                        refreshLayout.isRefreshing = false;
+                        refreshLayout.finishRefresh();  //刷新完成
                     }
                 })
             }
@@ -65,13 +65,32 @@ class HomeFragment :BaseFragment() {
                 var gson = Gson()
                 var homeItemBean = gson.fromJson<HomeItemBean>(result, HomeItemBean::class.java)
                 println("获取数据成功" + homeItemBean.subjects.size)
-                //刷新列表
-                ThreadUtil.runOnMainThread(object :Runnable {
-                    override fun run() {
-                        adapter.updateList(homeItemBean.subjects)
-                        refreshLayout.isRefreshing = false;
+                if(refresh) {
+                    //刷新列表
+                    ThreadUtil.runOnMainThread(object :Runnable {
+                        override fun run() {
+                            adapter.updateList(homeItemBean.subjects)
+                            refreshLayout.finishRefresh();  //刷新完成
+                        }
+                    })
+                }else {
+                    if(homeItemBean.subjects.size ==0) {
+                        myToast("没有更多数据了")
+                        ThreadUtil.runOnMainThread(object :Runnable {
+                            override fun run() {
+                                refreshLayout.finishLoadMoreWithNoMoreData();
+                            }
+                        })
+                    }else {
+                        //加载更多
+                        ThreadUtil.runOnMainThread(object :Runnable {
+                            override fun run() {
+                                adapter.loadMore(homeItemBean.subjects)
+                                refreshLayout.finishLoadMore(); //加载更多完成
+                            }
+                        })
                     }
-                })
+                }
             }
         })
     }

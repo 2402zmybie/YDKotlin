@@ -1,7 +1,9 @@
 package com.hr.ydkotlin.presenter.impl
 
 import com.google.gson.Gson
+import com.hr.ydkotlin.base.BaseView
 import com.hr.ydkotlin.model.HomeItemBean
+import com.hr.ydkotlin.model.Subject
 import com.hr.ydkotlin.net.HomeRequest
 import com.hr.ydkotlin.net.NetManager
 import com.hr.ydkotlin.net.ResponseHandler
@@ -12,7 +14,7 @@ import kotlinx.android.synthetic.main.fragment_home.*
 import okhttp3.*
 import java.io.IOException
 
-class HomePresenterImpl(var homeView:HomeView): HomePresenter {
+class HomePresenterImpl(var homeView:BaseView<Subject>?): HomePresenter {
     var offset = 0;
     var size = 10;
 
@@ -28,19 +30,19 @@ class HomePresenterImpl(var homeView:HomeView): HomePresenter {
         val myrequest = HomeRequest(path,object :ResponseHandler<HomeItemBean>{
             override fun onError(msg: String?) {
                 //回调到view层进行处理
-                homeView.onError(msg)
+                homeView?.onError(msg)
             }
 
             override fun onSuccess(homeItemBean: HomeItemBean) {
                 if(refresh) {
                     //刷新列表
-                    homeView.onRefreshSuccess(homeItemBean.subjects)
+                    homeView?.onRefreshSuccess(homeItemBean.subjects)
                 }else {
                     if(homeItemBean.subjects.size ==0) {
-                        homeView.onLoadNoMoreData()
+                        homeView?.onLoadNoMoreData()
                     }else {
                         //加载更多
-                        homeView.onLoadMoreSuccess(homeItemBean.subjects)
+                        homeView?.onLoadMoreSuccess(homeItemBean.subjects)
                     }
                 }
             }
@@ -92,6 +94,12 @@ class HomePresenterImpl(var homeView:HomeView): HomePresenter {
                 }
             }
         })*/
+    }
+
+    override fun destoryView() {
+        if(homeView != null) {
+            homeView = null
+        }
     }
 }
 

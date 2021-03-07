@@ -55,4 +55,11 @@ abstract class BaseListFragment<ITEMBEAN,ITEMVIEW:View>:BaseFragment(), BaseView
         refreshLayout.finishLoadMore()  //加载完成
     }
 
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        //解绑presenter
+        presenter.destoryView()
+    }
+
 }
